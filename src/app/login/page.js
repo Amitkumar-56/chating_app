@@ -39,106 +39,89 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-4 bg-[#02040a] relative overflow-hidden font-sans selection:bg-sky-500/30">
-      {/* Dynamic Mesh Background */}
-      <div className="absolute inset-0 z-0">
-         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-sky-500/10 blur-[150px] rounded-full animate-pulse"></div>
-         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-500/10 blur-[150px] rounded-full animate-pulse delay-700"></div>
-         <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] bg-emerald-500/5 blur-[120px] rounded-full animate-bounce duration-[10s]"></div>
-      </div>
+    <main className="min-h-screen bg-[#0b141a] flex flex-col items-center relative overflow-hidden font-sans selection:bg-[#00a884]/30">
+      {/* WhatsApp Signature Top Bar */}
+      <div className="absolute top-0 left-0 w-full h-[220px] bg-[#00a884] z-0"></div>
 
-      {/* Grid Pattern Overlay */}
-      <div className="absolute inset-0 z-[1] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none"></div>
+      <div className="w-full max-w-[1000px] mt-16 md:mt-24 relative z-10 px-4">
+        {/* Header - Brand */}
+        <div className="flex items-center gap-4 mb-10 text-white animate-in fade-in slide-in-from-top-4 duration-700">
+           <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg">
+              <Shield className="w-6 h-6 text-[#00a884]" />
+           </div>
+           <h1 className="text-sm font-bold tracking-widest uppercase">MPCPL WEB</h1>
+        </div>
 
-      <div className="w-full max-w-[440px] relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-        <div className="bg-slate-900/40 backdrop-blur-3xl p-10 md:p-12 rounded-[2.5rem] border border-white/5 shadow-[0_0_80px_rgba(0,0,0,0.5)]">
-          {/* Header */}
-          <div className="text-center mb-12">
-            <div className="relative inline-block mb-6 group">
-               <div className="absolute -inset-4 bg-sky-500/20 rounded-full blur-xl group-hover:bg-sky-500/30 transition-all"></div>
-               <div className="w-16 h-16 bg-slate-900 border border-sky-500/30 rounded-2xl flex items-center justify-center mx-auto relative z-10 shadow-2xl rotate-3 group-hover:rotate-0 transition-transform">
-                  <Shield className="w-8 h-8 text-sky-400" />
-               </div>
-               <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 rounded-lg flex items-center justify-center border-2 border-[#02040a] z-20">
-                  <Radio className="w-3.5 h-3.5 text-white animate-pulse" />
-               </div>
-            </div>
-            <h1 className="text-4xl font-black text-white tracking-tighter uppercase italic">MPCPL MESH</h1>
-            <p className="text-slate-500 text-[10px] mt-3 font-black uppercase tracking-[0.4em] opacity-80">Strategic Communications Terminal</p>
+        <div className="bg-[#111b21] rounded-sm shadow-2xl flex flex-col md:flex-row overflow-hidden min-h-[450px] animate-in zoom-in duration-500">
+          {/* Left Side - Info */}
+          <div className="flex-1 p-10 md:p-16 border-r border-[#222d34]">
+             <h2 className="text-3xl font-light text-[#e9edef] mb-10">To use MPCPL Mesh on your computer:</h2>
+             <ol className="space-y-6 text-[#8696a0] text-lg list-decimal list-inside">
+                <li>Enter your enterprise credentials below.</li>
+                <li>Ensure your node is ready for secure handshake.</li>
+                <li>Initiate the encrypted link session.</li>
+             </ol>
+             
+             <div className="mt-16 pt-8 border-t border-[#222d34] flex items-center gap-4 opacity-50">
+                <Radio className="w-5 h-5 text-[#25D366] animate-pulse" />
+                <p className="text-xs uppercase tracking-widest font-bold">Encrypted End-to-End Session</p>
+             </div>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div className="space-y-2.5">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Identity Access</label>
-              <div className="relative group">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-700 group-focus-within:text-sky-500 transition-colors" />
-                <input 
-                  type="email" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@mpcpl.com" 
-                  className="w-full bg-slate-950/60 border border-white/5 rounded-2xl py-4.5 pl-12 pr-4 text-white placeholder:text-slate-800 focus:outline-none focus:border-sky-500/40 transition-all font-medium text-sm shadow-inner"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2.5">
-              <div className="flex justify-between items-center px-1">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Secret Protocol</label>
-                <a href="#" className="text-[9px] text-sky-500/60 hover:text-sky-500 font-black uppercase tracking-tighter transition-colors">Reset Key</a>
-              </div>
-              <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-700 group-focus-within:text-sky-500 transition-colors" />
-                <input 
-                  type="password" 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••" 
-                  className="w-full bg-slate-950/60 border border-white/5 rounded-2xl py-4.5 pl-12 pr-4 text-white placeholder:text-slate-800 focus:outline-none focus:border-sky-500/40 transition-all font-medium text-sm shadow-inner"
-                  required
-                />
-              </div>
-            </div>
-
-            {error && (
-              <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] py-3.5 px-4 rounded-xl font-black uppercase tracking-widest flex items-center gap-3 animate-in slide-in-from-top-1">
-                <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping"></div>
-                {error}
-              </div>
-            )}
-
-            <button 
-              type="submit" 
-              disabled={loading}
-              className="w-full relative bg-sky-500 hover:bg-sky-600 disabled:bg-slate-800 py-4.5 rounded-[1.25rem] text-white text-xs font-black uppercase tracking-[0.2em] transition-all shadow-[0_15px_30px_rgba(14,165,233,0.25)] flex items-center justify-center gap-3 active:scale-[0.98] group overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500"></div>
-              {loading ? (
-                <Loader2 className="w-5 h-5 animate-spin relative z-10" />
-              ) : (
-                <>
-                  <span className="relative z-10">Initiate Link</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform relative z-10" />
-                </>
-              )}
-            </button>
-          </form>
-
-          <footer className="mt-12 pt-8 border-t border-white/5">
-             <div className="flex items-center justify-between opacity-30 group cursor-default">
-                <div className="flex items-center gap-4">
-                   <Globe className="w-4 h-4 text-slate-500" />
-                   <Server className="w-4 h-4 text-slate-500" />
+          {/* Right Side - Login Form */}
+          <div className="w-full md:w-[400px] p-10 bg-[#111b21] flex flex-col justify-center">
+            <form onSubmit={handleLogin} className="space-y-8">
+              <div className="space-y-4">
+                <div className="relative group">
+                  <Mail className="absolute left-0 top-3 w-5 h-5 text-[#8696a0] group-focus-within:text-[#00a884] transition-colors" />
+                  <input 
+                    type="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enterprise Identity (Email)" 
+                    className="w-full bg-transparent border-b border-[#222d34] py-3 pl-8 text-[#e9edef] placeholder:text-[#8696a0] focus:outline-none focus:border-[#00a884] transition-all text-md"
+                    required
+                  />
                 </div>
-                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">System Build v4.0.2</p>
-             </div>
-          </footer>
+
+                <div className="relative group">
+                  <Lock className="absolute left-0 top-3 w-5 h-5 text-[#8696a0] group-focus-within:text-[#00a884] transition-colors" />
+                  <input 
+                    type="password" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Access Protocol Key" 
+                    className="w-full bg-transparent border-b border-[#222d34] py-3 pl-8 text-[#e9edef] placeholder:text-[#8696a0] focus:outline-none focus:border-[#00a884] transition-all text-md"
+                    required
+                  />
+                </div>
+              </div>
+
+              {error && (
+                <div className="text-red-400 text-xs font-bold uppercase tracking-tight flex items-center gap-2 animate-in fade-in duration-300">
+                  <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                  {error}
+                </div>
+              )}
+
+              <button 
+                type="submit" 
+                disabled={loading}
+                className="w-full bg-[#00a884] hover:bg-[#008f6f] disabled:bg-[#202c33] disabled:text-[#8696a0] py-3 rounded-md text-white font-bold uppercase tracking-widest transition-all shadow-md flex items-center justify-center gap-3 active:scale-95"
+              >
+                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Log In & Sync'}
+              </button>
+            </form>
+
+            <div className="mt-10 text-center">
+               <span className="text-[#8696a0] text-[11px] uppercase tracking-widest opacity-40">MPCPL Industrial Security Systems</span>
+            </div>
+          </div>
         </div>
-        
-        <p className="text-center mt-8 text-[9px] text-slate-600 font-bold uppercase tracking-[0.3em] opacity-40">
-           Distributed exclusively by MPCPL Enterprise Security
-        </p>
+
+        <div className="mt-12 text-center text-[#8696a0] opacity-30 text-[10px] uppercase tracking-[0.5em] font-black">
+          Priority Mesh Access v4.2.0
+        </div>
       </div>
     </main>
   );

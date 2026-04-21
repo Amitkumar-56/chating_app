@@ -1,30 +1,33 @@
-/**
- * Browser Notification Utility for MPCPL
- * Handles permission requests and showing native alerts.
- */
-
 export const requestNotificationPermission = async () => {
   if (!('Notification' in window)) {
     console.error('This browser does not support notifications.');
-    return false;
+    return 'unsupported';
   }
 
-  if (Notification.permission === 'granted') return true;
-
   const permission = await Notification.requestPermission();
-  return permission === 'granted';
+  return permission;
 };
 
 export const showNotification = (title, body, icon = '/favicon.ico') => {
-  if (Notification.permission === 'granted') {
-    const notification = new Notification(title, {
-      body,
-      icon,
-    });
-
-    notification.onclick = () => {
-      window.focus();
-      notification.close();
-    };
+  if (typeof window !== 'undefined' && Notification.permission === 'granted') {
+    // Try via Service Worker first for better background support
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.ready.then((registration) => {
+        registration.showNotification(title, {
+          body,
+          icon,
+          badge: icon,
+          tag: 'mpcpl-mesh-alert',
+          renotify: true
+        });
+      });
+    } else {
+      // Fallback to standard notification
+      const notification = new Notification(title, { body, icon });
+      notification.onclick = () => {
+        window.focus();
+        notification.close();
+      };
+    }
   }
 };

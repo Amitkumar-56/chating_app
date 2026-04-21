@@ -70,7 +70,7 @@ export async function PUT(request) {
   try {
     const { sessionId, receiverId } = await request.json();
     await query(
-      'UPDATE chat_messages SET read_at = NOW(), status = 1 WHERE session_id = ? AND receiver_id = ? AND read_at IS NULL',
+      'UPDATE chat_messages SET read_at = NOW(), status = "read" WHERE session_id = ? AND receiver_id = ? AND read_at IS NULL',
       [sessionId, receiverId]
     );
     return new Response(JSON.stringify({ success: true }), { status: 200 });
