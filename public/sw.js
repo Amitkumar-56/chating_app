@@ -6,6 +6,10 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(clients.claim());
 });
 
+self.addEventListener('fetch', (event) => {
+  // Needed for PWA installation criteria
+});
+
 // Background Message Listener (Placeholder for Push API)
 self.addEventListener('push', (event) => {
   const data = event.data?.json() || { title: 'MPCPL Chat', body: 'New Message Received' };
