@@ -24,6 +24,8 @@ export default function ChatPage() {
   const [isAppActive, setIsAppActive] = useState(true);
   const [dbError, setDbError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSecureContext, setIsSecureContext] = useState(false);
+  const [installInstructions, setInstallInstructions] = useState(false);
 
   // Calling State
   const [incomingCall, setIncomingCall] = useState(null);
@@ -61,6 +63,7 @@ export default function ChatPage() {
 
     if (typeof window !== 'undefined') {
       setNotifPermission(Notification.permission);
+      setIsSecureContext(window.location.protocol === 'https:' || window.location.hostname === 'localhost');
       if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
       window.addEventListener('blur', () => setIsAppActive(false));
       window.addEventListener('focus', () => setIsAppActive(true));
@@ -416,20 +419,46 @@ export default function ChatPage() {
         </div>
 
         <div className="flex-1 overflow-y-auto overscroll-contain">
-          {/* PWA Install Promo for mobile - Forced visibility for guidance */}
+          {/* Enhanced PWA Install Promo */}
           <div className="p-4 bg-[#25D366]/10 border-b border-[#25D366]/20">
-             <button 
+            {!isSecureContext && (
+              <div className="mb-3 p-2 bg-yellow-500/20 border border-yellow-500/50 rounded-lg">
+                <p className="text-xs text-yellow-500 text-center">
+                  ⚠️ HTTPS required for installation
+                </p>
+              </div>
+            )}
+            <button 
               onClick={() => {
                 if (deferredPrompt) {
                   deferredPrompt.prompt();
                 } else {
-                  alert("Install Tips:\n1. Open site in Chrome.\n2. Tap 3-dots (upper right).\n3. Click 'Install App' or 'Add to Home Screen'.\n\nNote: If on HTTP, automatic prompt is blocked for security.");
+                  setInstallInstructions(true);
                 }
               }}
               className="w-full bg-[#25D366] text-[#111b21] py-3 rounded-lg font-bold flex items-center justify-center gap-2"
-             >
-               <DownloadCloud className="w-5 h-5" /> Install Mobile Chat App
-             </button>
+            >
+              <DownloadCloud className="w-5 h-5" /> Install Mobile App
+            </button>
+            {installInstructions && (
+              <div className="mt-3 p-3 bg-[#202c33] rounded-lg text-xs text-[#8696a0]">
+                <p className="font-semibold text-[#e9edef] mb-2">Installation Guide:</p>
+                <div className="space-y-1">
+                  <p>📱 <strong>Chrome/Edge:</strong> Tap 3-dots → "Install App"</p>
+                  <p>📱 <strong>Safari:</strong> Tap Share → "Add to Home Screen"</p>
+                  <p>📱 <strong>Firefox:</strong> Menu → "Install Page"</p>
+                  {!isSecureContext && (
+                    <p className="text-yellow-500 mt-2">⚠️ Enable HTTPS for auto-install</p>
+                  )}
+                </div>
+                <button 
+                  onClick={() => setInstallInstructions(false)}
+                  className="mt-2 text-[#25D366] text-xs underline"
+                >
+                  Hide instructions
+                </button>
+              </div>
+            )}
           </div>
           {employees
             .filter(e => e.id !== currentUser.id)
