@@ -7,6 +7,7 @@ import {
   Phone, Video, AlertTriangle, MonitorSmartphone, DownloadCloud, Radio, Speaker, X, PhoneCall, PhoneOff, Mic, VideoOff, Layers, Zap, Cpu
 } from 'lucide-react';
 import { playNotificationSound, startRingtone, stopRingtone } from '../utils/sound';
+import { showNotification, requestNotificationPermission } from '../utils/notifications';
 
 export default function ChatPage() {
   const [employees, setEmployees] = useState([]);
@@ -22,6 +23,7 @@ export default function ChatPage() {
   const [unreadCounts, setUnreadCounts] = useState({});
   const [isAppActive, setIsAppActive] = useState(true);
   const [dbError, setDbError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Calling State
   const [incomingCall, setIncomingCall] = useState(null);
@@ -194,8 +196,11 @@ export default function ChatPage() {
         setMessages(data.messages);
         if (isPolling && data.messages.length > 0) {
           const last = data.messages[data.messages.length - 1];
-          if (last.id !== lastMessageIdRef.current && last.sender_id !== currentUser.id) {
+          if (last.id !== lastMessageIdRef.current && Number(last.sender_id) !== Number(currentUser.id)) {
             playNotificationSound();
+            if (!isAppActive) {
+                showNotification(`New Message from ${selectedSession.responder.name}`, last.message);
+            }
             lastMessageIdRef.current = last.id;
             markAsRead(data.sessionId);
           }
@@ -338,15 +343,40 @@ export default function ChatPage() {
               </button>
             </div>
           </div>
+          
           <div className="relative group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-700" />
-            <input placeholder="Search Personnel..." className="w-full bg-slate-950/60 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-[10px] font-black uppercase tracking-widest text-white focus:outline-none focus:border-sky-500/30 transition-all placeholder:text-slate-800 shadow-inner" />
+            <input 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search Personnel..." 
+              className="w-full bg-slate-950/60 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-[10px] font-black uppercase tracking-widest text-white focus:outline-none focus:border-sky-500/30 transition-all placeholder:text-slate-800 shadow-inner" 
+            />
           </div>
+
+          {/* PWA Install Button */}
+          {showInstallBtn && (
+            <button 
+              onClick={() => {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choice) => {
+                  if (choice.outcome === 'accepted') setShowInstallBtn(false);
+                });
+              }}
+              className="mt-6 w-full bg-emerald-500 hover:bg-emerald-600 p-4 rounded-2xl flex items-center justify-center gap-3 text-white shadow-lg shadow-emerald-500/20 transition-all animate-bounce"
+            >
+              <DownloadCloud className="w-5 h-5" />
+              <span className="text-[10px] font-black uppercase tracking-widest">Install Mobile App</span>
+            </button>
+          )}
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
           <div className="px-4 pb-2 text-[9px] font-black text-slate-600 uppercase tracking-[0.3em]">Operational Nodes</div>
-          {employees.filter(e => e.id !== currentUser.id).map(emp => (
+          {employees
+            .filter(e => e.id !== currentUser.id)
+            .filter(e => e.name.toLowerCase().includes(searchQuery.toLowerCase()) || e.emp_code.toLowerCase().includes(searchQuery.toLowerCase()))
+            .map(emp => (
             <div key={emp.id} onClick={() => { setSelectedSession({ id: emp.id, responder: emp }); setMessages([]); initAudio(); }} className={`flex items-center gap-4 p-4 rounded-3xl cursor-pointer transition-all border ${selectedSession?.responder.id === emp.id ? 'bg-sky-500/10 border-sky-500/20 shadow-2xl scale-[1.02]' : 'hover:bg-white/5 border-transparent hover:border-white/5 hover:scale-[1.01]'}`}>
               <div className="relative">
                 <div className="w-12 h-12 rounded-2xl bg-slate-950 flex items-center justify-center border border-white/5 shadow-inner">
@@ -411,25 +441,24 @@ export default function ChatPage() {
                 </div>
               ) : (
                 messages.map((msg, idx) => (
-                  <div key={idx} className={`flex ${msg.sender_id === currentUser.id ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-3 duration-1000`}>
-                    <div className={`max-w-[70%] p-6 rounded-[2rem] shadow-2xl relative ${msg.sender_id === currentUser.id ? 'bg-sky-600/10 border border-sky-400/20 text-white rounded-tr-none' : 'bg-slate-900/40 border border-white/5 text-slate-300 rounded-tl-none'}`}>
+                  <div key={idx} className={`flex ${Number(msg.sender_id) === Number(currentUser.id) ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-500`}>
+                    <div className={`max-w-[85%] md:max-w-[70%] p-3 md:p-6 rounded-2xl md:rounded-[2rem] shadow-2xl relative ${Number(msg.sender_id) === Number(currentUser.id) ? 'bg-sky-600/20 border border-sky-400/30 text-white rounded-tr-none' : 'bg-slate-900/60 border border-white/10 text-slate-200 rounded-tl-none'}`}>
                       {msg.message_type === 'image' ? (
-                        <img src={msg.file_path} className="max-w-full rounded-[1.5rem] mb-4 border border-white/10 shadow-2xl" alt="Mesh Asset" />
+                        <img src={msg.file_path} className="max-w-full rounded-xl md:rounded-[1.5rem] mb-2 md:mb-4 border border-white/10 shadow-2xl" alt="Asset" />
                       ) : msg.message_type === 'file' ? (
-                        <a href={msg.file_path} target="_blank" rel="noopener noreferrer" className="flex items-center gap-5 bg-black/40 p-5 rounded-[1.5rem] border border-white/10 hover:bg-black/60 transition-all group backdrop-blur-2xl">
-                          <div className="p-3 bg-sky-500/20 rounded-xl group-hover:scale-110 transition-transform"><FileText className="w-8 h-8 text-sky-500" /></div>
+                        <a href={msg.file_path} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 md:gap-5 bg-black/40 p-3 md:p-5 rounded-xl md:rounded-[1.5rem] border border-white/10 hover:bg-black/60 transition-all group backdrop-blur-2xl">
+                          <div className="p-2 bg-sky-500/20 rounded-lg group-hover:scale-110 transition-transform"><FileText className="w-5 h-5 md:w-8 md:h-8 text-sky-500" /></div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Encrypted Payload</p>
-                            <p className="text-xs font-bold truncate text-slate-200">Open Data Source</p>
+                            <p className="text-[7px] md:text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Encrypted</p>
+                            <p className="text-[10px] md:text-xs font-bold truncate text-slate-200">Open File</p>
                           </div>
-                          <Download className="w-5 h-5 text-slate-600" />
                         </a>
                       ) : (
-                        <p className="text-sm font-semibold leading-relaxed tracking-tight selection:bg-sky-500/50">{msg.message}</p>
+                        <p className="text-[13px] md:text-sm font-semibold leading-relaxed tracking-tight">{msg.message}</p>
                       )}
-                      <div className="flex items-center justify-end gap-2.5 mt-4 opacity-30">
-                        <span className="text-[8px] font-black uppercase tracking-[0.2em]">{msg.created_at ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Sync'}</span>
-                        {msg.sender_id === currentUser.id && <CheckCheck className={`w-4 h-4 ${msg.read_at ? 'text-sky-400' : 'text-slate-600'}`} />}
+                      <div className="flex items-center justify-end gap-1.5 md:gap-2.5 mt-2 md:mt-4 opacity-40">
+                        <span className="text-[7px] md:text-[8px] font-black uppercase tracking-[0.1em]">{msg.created_at ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Sync'}</span>
+                        {Number(msg.sender_id) === Number(currentUser.id) && <CheckCheck className={`w-3 h-3 md:w-4 md:h-4 ${msg.read_at ? 'text-sky-400' : 'text-slate-600'}`} />}
                       </div>
                     </div>
                   </div>

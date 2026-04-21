@@ -56,7 +56,7 @@ export async function POST(request) {
 
     await query(
       'INSERT INTO chat_messages (session_id, sender_id, receiver_id, message, message_type, file_path, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [sessionId, sender_id, receiver_id, message, message_type || 'text', file_path || null, 0] // status 0 = unread
+      [sessionId, sender_id, receiver_id, message, message_type || 'text', file_path || null, 'sent'] 
     );
 
     return new Response(JSON.stringify({ success: true, sessionId }), { status: 201 });
