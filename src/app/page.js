@@ -1,3 +1,4 @@
+// src/app/page.js
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -64,13 +65,31 @@ export default function ChatPage() {
     if (typeof window !== 'undefined') {
       setNotifPermission(Notification.permission);
       setIsSecureContext(window.location.protocol === 'https:' || window.location.hostname === 'localhost');
-      if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').then(reg => {
+          console.log('SW Registered', reg.scope);
+        }).catch(err => {
+          console.error('SW Registration failing:', err);
+        });
+      }
+      
       window.addEventListener('blur', () => setIsAppActive(false));
       window.addEventListener('focus', () => setIsAppActive(true));
+      
       window.addEventListener('beforeinstallprompt', (e) => {
+        // Prevent the mini-infobar from appearing on mobile
         e.preventDefault();
+        // Stash the event so it can be triggered later.
         setDeferredPrompt(e);
+        // Update UI notify the user they can install the PWA
         setShowInstallBtn(true);
+      });
+
+      window.addEventListener('appinstalled', (event) => {
+        // Clear the deferredPrompt so it can be garbage collected
+        setDeferredPrompt(null);
+        setShowInstallBtn(false);
+        console.log('PWA was installed');
       });
     }
   }, []);
@@ -132,8 +151,12 @@ export default function ChatPage() {
              const senderName = sender ? sender.name : "Personnel";
 
              playNotificationSound(); 
-             if (!isAppActive) {
-                showNotification(`Message from ${senderName}`, latest.last_message || "Priority update received.");
+             
+             // Show notification if app is inactive OR if the message is from someone other than the current open chat
+             const isDifferentChat = !selectedSession || Number(selectedSession.responder.id) !== Number(latest.sender_id);
+             
+             if (!isAppActive || isDifferentChat) {
+                showNotification(`Message from ${senderName}`, latest.last_message || "New message received.");
              }
           }
           lastCheckedCountRef.current = totalNew;
@@ -255,6 +278,7 @@ export default function ChatPage() {
           const last = data.messages[data.messages.length - 1];
           if (last.id !== lastMessageIdRef.current && Number(last.sender_id) !== Number(currentUser.id)) {
             playNotificationSound();
+            // In the active chat, we only show browser notification if the app is blurred
             if (!isAppActive) {
                 showNotification(`New Message from ${selectedSession.responder.name}`, last.message);
             }
@@ -428,18 +452,24 @@ export default function ChatPage() {
                 </p>
               </div>
             )}
-            <button 
-              onClick={() => {
-                if (deferredPrompt) {
-                  deferredPrompt.prompt();
-                } else {
-                  setInstallInstructions(true);
-                }
-              }}
-              className="w-full bg-[#25D366] text-[#111b21] py-3 rounded-lg font-bold flex items-center justify-center gap-2"
-            >
-              <DownloadCloud className="w-5 h-5" /> Install Mobile App
-            </button>
+            {showInstallBtn && (
+              <button 
+                onClick={async () => {
+                  if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log(`User response to the install prompt: ${outcome}`);
+                    setDeferredPrompt(null);
+                    setShowInstallBtn(false);
+                  } else {
+                    setInstallInstructions(true);
+                  }
+                }}
+                className="w-full bg-[#25D366] text-[#111b21] py-3 rounded-lg font-bold flex items-center justify-center gap-2 mb-2 shadow-lg hover:bg-[#1ebe57] transition-all"
+              >
+                <DownloadCloud className="w-5 h-5" /> Install Mobile App
+              </button>
+            )}
             {installInstructions && (
               <div className="mt-3 p-3 bg-[#202c33] rounded-lg text-xs text-[#8696a0]">
                 <p className="font-semibold text-[#e9edef] mb-2">Installation Guide:</p>

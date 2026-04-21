@@ -5,12 +5,7 @@ const DYNAMIC_CACHE = 'mpcpl-dynamic-v1';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
-  '/sw.js',
-  '/favicon.ico',
-  '/_next/static/css/',
-  '/_next/static/chunks/',
-  '/api/employees',
-  '/api/messages'
+  '/sw.js'
 ];
 
 self.addEventListener('install', (event) => {
