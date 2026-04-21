@@ -317,17 +317,9 @@ export default function ChatPage() {
   if (!currentUser) return null;
 
   return (
-    <main className="relative flex h-screen w-full overflow-hidden text-[#e9edef] bg-[#0b141a]">
+    <main className="relative flex h-[100dvh] w-full overflow-hidden text-[#e9edef] bg-[#0b141a] touch-none">
       {/* WhatsApp Background Pattern Logic */}
       <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'url("https://w0.peakpx.com/wallpaper/580/630/wallpaper-whatsapp-dark-mode.jpg")', backgroundSize: '400px' }}></div>
-
-      {/* HTTPS Warning for PWA/Notifications */}
-      {typeof window !== 'undefined' && window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && (
-        <div className="fixed bottom-4 left-4 right-4 z-[200] bg-amber-600/90 backdrop-blur-xl border border-amber-500/50 p-4 rounded-2xl flex items-center gap-3 text-white shadow-2xl animate-in slide-in-from-bottom-2">
-          <AlertTriangle className="w-5 h-5 flex-shrink-0" />
-          <p className="text-[9px] font-bold uppercase tracking-tight">Security Alert: Encrypted Notifications & PWA Installation require an **HTTPS** connection. Current unsecured protocol (HTTP) may limit features.</p>
-        </div>
-      )}
 
       {/* Database Error Alert */}
       {dbError && (
@@ -423,7 +415,24 @@ export default function ChatPage() {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto overscroll-contain">
+          {/* PWA Install Promo for mobile */}
+          {showInstallBtn && (
+            <div className="p-4 bg-[#25D366]/10 border-b border-[#25D366]/20">
+               <button 
+                onClick={() => {
+                  if (typeof window !== 'undefined' && window.location.protocol !== 'https:') {
+                    alert("Mobile App Install requires HTTPS. Please host on a secure server.");
+                    return;
+                  }
+                  deferredPrompt?.prompt();
+                }}
+                className="w-full bg-[#25D366] text-[#111b21] py-3 rounded-lg font-bold flex items-center justify-center gap-2 animate-pulse"
+               >
+                 <DownloadCloud className="w-5 h-5" /> Install Mobile Chat App
+               </button>
+            </div>
+          )}
           {employees
             .filter(e => e.id !== currentUser.id)
             .filter(e => e.name.toLowerCase().includes(searchQuery.toLowerCase()) || e.emp_code.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -454,7 +463,7 @@ export default function ChatPage() {
       </aside>
 
       {/* Main Chat Area - WhatsApp Style */}
-      <section className={`flex-1 flex flex-col relative bg-[#0b141a] z-10 ${!selectedSession ? 'hidden md:flex' : 'flex'}`}>
+      <section className={`flex-1 flex flex-col relative bg-[#0b141a] z-10 touch-auto ${!selectedSession ? 'hidden md:flex' : 'flex'}`}>
         {selectedSession ? (
           <>
             <header className="p-3 bg-[#202c33] flex items-center justify-between border-l border-[#222d34]">
