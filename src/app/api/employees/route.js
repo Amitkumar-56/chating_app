@@ -4,7 +4,7 @@ export async function GET() {
   try {
     // Fetching all active employees from employee_profile
     const employees = await query(
-      'SELECT id, name, role, status, emp_code, picture, last_seen FROM employee_profile',
+      'SELECT id, name, role, status, emp_code, picture FROM employee_profile',
       []
     );
 

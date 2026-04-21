@@ -161,10 +161,7 @@ export default function ChatPage() {
   }, [currentUser]);
 
   const isUserOnline = (lastSeen) => {
-    if (!lastSeen) return false;
-    const last = new Date(lastSeen).getTime();
-    const now = new Date().getTime();
-    return (now - last) < 65000; // Online if updated in last 65 seconds
+    return false; // Disabled to prevent DB errors
   };
 
   // Global call checking disabled
@@ -441,10 +438,9 @@ export default function ChatPage() {
               <div className="flex-1 min-w-0 border-b border-[#222d34] pb-3">
                 <div className="flex justify-between items-center mb-1">
                   <h3 className="font-semibold text-[16px] text-[#e9edef] truncate">{emp.name}</h3>
-                  <span className="text-[12px] text-[#8696a0]">{isUserOnline(emp.last_seen) ? 'Online' : 'Offline'}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <p className="text-sm text-[#8696a0] truncate opacity-80">Tap to start secure chat</p>
+                  <p className="text-sm text-[#8696a0] truncate opacity-80">{emp.emp_code}</p>
                   {unreadCounts[emp.id] > 0 && (
                     <div className="bg-[#25D366] min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center">
                       <span className="text-[11px] font-bold text-[#111b21]">{unreadCounts[emp.id]}</span>
@@ -467,8 +463,8 @@ export default function ChatPage() {
                 <div className="w-10 h-10 rounded-full bg-[#374248] flex items-center justify-center"><User className="w-6 h-6 text-[#8696a0]" /></div>
                 <div>
                   <h2 className="font-bold text-[#e9edef] text-md">{selectedSession.responder.name}</h2>
-                  <p className={`text-[12px] ${isUserOnline(selectedSession.responder.last_seen) ? 'text-[#25D366]' : 'text-[#8696a0]'}`}>
-                    {isUserOnline(selectedSession.responder.last_seen) ? 'online' : 'offline'}
+                  <p className="text-[12px] text-[#8696a0]">
+                    {selectedSession.responder.emp_code}
                   </p>
                 </div>
               </div>
