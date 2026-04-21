@@ -17,9 +17,14 @@ export const requestNotificationPermission = async () => {
 
 export const showNotification = (title, body, icon = '/favicon.ico') => {
   if (Notification.permission === 'granted') {
-    new Notification(title, {
+    const notification = new Notification(title, {
       body,
       icon,
     });
+
+    notification.onclick = () => {
+      window.focus();
+      notification.close();
+    };
   }
 };

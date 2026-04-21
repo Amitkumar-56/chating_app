@@ -110,6 +110,35 @@ export default function ChatPage() {
     };
   }, [selectedSession, currentUser]);
 
+  // Global Check for ANY new unread messages to trigger notifications
+  useEffect(() => {
+    if (!currentUser) return;
+    
+    let lastCheckedCount = 0;
+    const checkGlobal = async () => {
+      try {
+        const res = await fetch(`/api/messages/unread?receiverId=${currentUser.id}`);
+        const data = await res.json();
+        if (data.success && data.counts) {
+          const totalNew = data.counts.reduce((a, b) => a + b.unread_count, 0);
+          if (totalNew > lastCheckedCount) {
+             // New message arrived globally!
+             playNotificationSound(); // Play sound always on new message
+             
+             if (!isAppActive) {
+                showNotification(`MPCPL Mesh`, `New encrypted packet received from personnel.`);
+             }
+          }
+          lastCheckedCount = totalNew;
+          fetchUnreadCounts(); // Update UI badges
+        }
+      } catch (e) {}
+    };
+
+    const interval = setInterval(checkGlobal, 4000);
+    return () => clearInterval(interval);
+  }, [currentUser, isAppActive]);
+
   // Global call checking disabled
   const checkGlobalCalls = async () => {};
 
@@ -377,20 +406,20 @@ export default function ChatPage() {
             .filter(e => e.id !== currentUser.id)
             .filter(e => e.name.toLowerCase().includes(searchQuery.toLowerCase()) || e.emp_code.toLowerCase().includes(searchQuery.toLowerCase()))
             .map(emp => (
-            <div key={emp.id} onClick={() => { setSelectedSession({ id: emp.id, responder: emp }); setMessages([]); initAudio(); }} className={`flex items-center gap-4 p-4 rounded-3xl cursor-pointer transition-all border ${selectedSession?.responder.id === emp.id ? 'bg-sky-500/10 border-sky-500/20 shadow-2xl scale-[1.02]' : 'hover:bg-white/5 border-transparent hover:border-white/5 hover:scale-[1.01]'}`}>
+            <div key={emp.id} onClick={() => { setSelectedSession({ id: emp.id, responder: emp }); setMessages([]); initAudio(); }} className={`flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-2xl md:rounded-3xl cursor-pointer transition-all border ${selectedSession?.responder.id === emp.id ? 'bg-sky-500/10 border-sky-500/20 shadow-2xl' : 'hover:bg-white/5 border-transparent hover:border-white/5'}`}>
               <div className="relative">
-                <div className="w-12 h-12 rounded-2xl bg-slate-950 flex items-center justify-center border border-white/5 shadow-inner">
-                  <User className={`w-6 h-6 ${unreadCounts[emp.id] ? 'text-sky-400' : 'text-slate-800'}`} />
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-slate-950 flex items-center justify-center border border-white/5 shadow-inner">
+                  <User className={`w-5 h-5 md:w-6 md:h-6 ${unreadCounts[emp.id] ? 'text-sky-400' : 'text-slate-800'}`} />
                 </div>
-                {unreadCounts[emp.id] > 0 && <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-sky-500 rounded-full border-2 border-black animate-pulse"></span>}
+                {unreadCounts[emp.id] > 0 && <span className="absolute -top-1 -right-1 w-3 h-3 bg-sky-500 rounded-full border-2 border-black animate-pulse"></span>}
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-black text-sm tracking-tight text-slate-200 uppercase">{emp.name}</h3>
-                <p className="text-[9px] text-slate-600 font-bold uppercase tracking-widest mt-1 opacity-60">{emp.emp_code} • Linked</p>
+                <h3 className="font-black text-xs md:text-sm tracking-tight text-slate-200 uppercase truncate">{emp.name}</h3>
+                <p className="text-[7px] md:text-[9px] text-slate-600 font-black tracking-widest uppercase mt-0.5 opacity-60">Node Active</p>
               </div>
               {unreadCounts[emp.id] > 0 && (
-                <div className="bg-sky-500 h-6 px-2 rounded-xl flex items-center justify-center shadow-lg shadow-sky-500/20">
-                  <span className="text-[10px] font-black text-white">{unreadCounts[emp.id]}</span>
+                <div className="bg-sky-500 h-5 px-2 rounded-lg flex items-center justify-center">
+                  <span className="text-[9px] font-black text-white">{unreadCounts[emp.id]}</span>
                 </div>
               )}
             </div>
