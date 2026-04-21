@@ -1,0 +1,22 @@
+{
+  "name": "MPCPL Enterprise Chat",
+  "short_name": "MPCPL Chat",
+  "description": "Premium real-time enterprise communication platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#06080c",
+  "theme_color": "#0ea5e9",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/5962/5962463.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
