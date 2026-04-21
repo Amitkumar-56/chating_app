@@ -35,7 +35,12 @@ export async function POST(request) {
     }
 
     // Success
-    const token = `token_${user.id}_${Date.now()}`;
+    // Using simple crypto-based token for now since jsonwebtoken is not installed
+    const secret = process.env.JWT_SECRET || 'default_secret';
+    const token = crypto.createHmac('sha256', secret)
+      .update(`${user.id}_${Date.now()}`)
+      .digest('hex');
+
     await query('UPDATE employee_profile SET auth_token = ?, status = 1 WHERE id = ?', [token, user.id]);
     
     const { password: _, ...userWithoutPassword } = user;
